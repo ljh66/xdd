@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml"
+      xmlns:v-for="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+    <title>学生管理系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.bootcss.com/jquery/1.10.2/jquery.min.js"></script>
+</head>
+<body>
+    <div id="bo">
+        <table>
+            <tr><td>{{ title }}</td></tr>
+            <tr><td><button v-on:click="changetitle">改变文字</button><!--事件绑定--></td></tr>
+            <tr><td><a v-bind:href="vueUrl">vue.js文件下载</a><!--属性绑定--></td></tr>
+            <tr><td><input v-model="title"><!--数据双向绑定--></td></tr>
+            <tr><td></td></tr>
+        </table>
+        <button v-on:click="search">查询</button>
+        <table>
+                <tr>
+                    <td>ID</td>
+                    <td>姓名</td>
+                    <td>学号</td>
+                    <td>性别</td>
+                    <td>年龄</td>
+                    <td>操作</td>
+                </tr>
+                <tr v-for="(stu,,index) in stuData"><!--顺序为（value,key,index），值、键、索引-->
+                    <td>{{index+1}}</td>
+                    <td>{{stu.sutname}}</td>
+                    <td>{{stu.number}}</td>
+                    <td>{{stu.sex}}</td>
+                    <td>{{stu.age}}</td>
+                    <td>
+                        <button v-on:click="modifyStudentById(stu.id)">修改</button>
+                        <button v-on:click="deleteStudentById(stu.id)">删除</button>
+                    </td>
+                </tr>
+        </table>
+    </div>
+    <script type="text/javascript">
+        var stu = new Vue({
+            el:"#bo",
+            data:{
+                title:"学生管理系统",
+                vueUrl:"https://cdn.jsdelivr.net/npm/vue/dist/vue.js",
+                stuData:[{"id":"ID","sutname":"姓名","number":"学号","sex":"性别","age":"年龄"}]
+            },
+            methods:{
+                changetitle: function(){
+                    if(this.title=='学生管理系统')
+                        this.title = "student manage system";
+                    else
+                        this.title = '学生管理系统';
+                },
+                search: function () {
+                    $.ajax({
+                        url:"http://localhost:8080/findAllStudent",
+                        type:"get",
+                        dataType:"json",
+                        data:"",
+                        success:function(result,status,xhr){
+                            stu.stuData = result;
+                        },
+                        error:function(xhr,status,error){
+
+                        }
+                    });
+                },
+                modifyStudentById: function (id) {
+                    alert(id);
+                },
+                deleteStudentById: function (id) {
+                    if(!confirm("确认删除学生信息？")){
+                        return;
+                    }
+                    $.ajax({
+                        url:"http://localhost:8080/deleteStudentById?id="+id,
+                        type:"get",
+                        dataType:"json",
+                        success:function(result,status,xhr){
+                            if(result.statu=="success")
+                                alert(result.message);
+                            else
+                                alert(result.message);
+                            stu.search();
+                        },
+                        error:function(xhr,status,error){
+                            alert("删除错误："+error);
+                        }
+                    });
+                }
+            }
+        });
+
+        $(function(){
+            stu.search();
+        })
+    </script>
+</body>
+</html>
